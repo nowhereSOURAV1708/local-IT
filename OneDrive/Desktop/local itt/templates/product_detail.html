@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('catalog') }}" class="text-success text-decoration-none">Catalog Hub Matrix</a></li>
+            <li class="breadcrumb-item active">{{ product.category.name }}</li>
+        </ol>
+    </nav>
+    <div class="card shadow-sm border-0 p-4 bg-white rounded-3 mb-5">
+        <div class="row g-5">
+            <div class="col-md-5">
+                <div class="bg-success text-white text-center d-flex align-items-center justify-content-center rounded-3 shadow-sm" style="height: 350px; font-size: 7rem; background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+            </div>
+            <div class="col-md-7 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 mb-2">{{ product.category.name }}</span>
+                            <h2 class="fw-bold text-dark mb-1">{{ product.name }}</h2>
+                            <p class="text-muted mb-3 fs-5">Brand Maker Ledger Framework Node Identifier Reference: <strong>{{ product.brand }}</strong></p>
+                        </div>
+                        <form action="{{ url_for('toggle_favorite', product_id=product.id) }}" method="POST">
+                            <button class="btn btn-outline-danger btn-lg rounded-circle shadow-sm"><i class="fa-solid fa-heart"></i></button>
+                        </form>
+                    </div>
+                    <hr class="my-3">
+                    <div class="bg-light p-3 rounded-3 mb-4">
+                        <h6 class="fw-bold text-secondary mb-2">Extended Specification Metadata Log Description Strings:</h6>
+                        <p class="mb-0 text-dark font-monospace" style="line-height: 1.6;">{{ product.description }}</p>
+                    </div>
+                    <div class="row small text-muted g-2 mb-4">
+                        <div class="col-6"><strong>SKU Target Index String ID Map:</strong> <span class="badge bg-dark text-white">{{ product.sku }}</span></div>
+                        <div class="col-6"><strong>Barcode Identity Match Register Token Link:</strong> <span class="badge bg-secondary text-white">{{ product.barcode or 'N/A' }}</span></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center justify-content-between bg-success-subtle p-3 rounded-3 mb-3 border border-success-subtle">
+                        <div>
+                            <span class="small text-success fw-bold d-block">Retail Asset Value Price Ticket Assessment Rate</span>
+                            <span class="fs-1 fw-black font-monospace text-success">${{ "%.2f"|format(product.selling_price) }}</span>
+                        </div>
+                        <div>
+                            {% if product.stock_quantity <= 0 %}
+                                <span class="badge bg-danger px-3 py-2 fs-6">Out of Stock Ledger Reorder Stage Active</span>
+                            {% else %}
+                                <span class="badge bg-success px-3 py-2 fs-6">In Stock Asset Queue: {{ product.stock_quantity }} Unit Nodes Available</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" class="row g-2">
+                        <div class="col-md-3">
+                            <input type="number" name="quantity" class="form-control form-control-lg border-success text-center font-monospace fw-bold" value="1" min="1" max="{{ product.stock_quantity }}" {% if product.stock_quantity <= 0 %}disabled{% endif %}>
+                        </div>
+                        <div class="col-md-9">
+                            <button type="submit" class="btn btn-success btn-lg w-100 fw-bold shadow" {% if product.stock_quantity <= 0 %}disabled{% endif %}>
+                                <i class="fa-solid fa-cart-arrow-down me-2"></i> Transmit Order Pipeline Allocation Request Block Link
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

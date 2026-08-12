@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h3 class="fw-bold text-success mb-4"><i class="fa-solid fa-truck-ramp-box me-2"></i> Finalize Store Counter Pickup Parameters Allocation Reservation</h3>
+    <div class="row g-4">
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm p-4 bg-white">
+                <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-clock-pulse text-success me-2"></i> Select Target Counter Retrieval Window Configuration Attributes</h5>
+                <hr class="mt-0">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Target Logistics Execution Extraction Calendar Day Node (YYYY-MM-DD)</label>
+                        {{ form.pickup_date(class="form-control border-success", placeholder="e.g. 2026-06-15") }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Target Operational Shift Hourly Window Slot Token Range Link</label>
+                        {{ form.pickup_time_slot(class="form-select border-success") }}
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Custom Dispatch Context Requests or Particular Notes</label>
+                        {{ form.notes(class="form-control border-success", rows="3", placeholder="e.g. Please isolate fresh items into biodegradable organic carrier array packages.") }}
+                    </div>
+                    <div class="alert alert-warning py-3 mb-4 border border-warning shadow-sm">
+                        <h6 class="fw-bold mb-1"><i class="fa-solid fa-coins"></i> Local Verification Checkout Counter Payment Setup Framework Modality Protocol</h6>
+                        <p class="mb-0 small text-dark">This system utilizes exclusive <strong>Pay at Store Counter</strong> operational processing frameworks. Zero automated internet credit routing channels are required here.</p>
+                    </div>
+                    {{ form.submit(class="btn btn-success btn-lg w-100 fw-bold shadow") }}
+                </form>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm p-4 bg-white text-dark">
+                <h5 class="fw-bold mb-3">Order Ledger Mapping Validation Assets Check</h5>
+                <hr class="mt-0">
+                {% for item in items %}
+                <div class="d-flex justify-content-between align-items-center mb-2 font-monospace">
+                    <span class="small text-truncate text-muted" style="max-width: 250px;">{{ item.product.name }} <strong class="text-dark">x{{ item.quantity }}</strong></span>
+                    <span class="fw-bold text-dark">₹{{ "%.2f"|format(item.product.selling_price * item.quantity) }}</span>
+                </div>
+                {% endfor %}
+                <hr>
+                <div class="d-flex justify-content-between align-items-center font-monospace">
+                    <span class="fw-bold text-dark">Total Lock Calculation Rate:</span>
+                    <span class="fs-4 fw-black text-success">₹{{ "%.2f"|format(total) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

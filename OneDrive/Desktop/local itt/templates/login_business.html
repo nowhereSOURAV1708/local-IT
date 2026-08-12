@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5 text-dark">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 rounded-3 mt-4 bg-white">
+                <div class="card-header bg-dark text-white text-center py-3">
+                    <h4 class="mb-0 fw-bold text-warning"><i class="fa-solid fa-user-lock me-2"></i> Enterprise Hub Login</h4>
+                </div>
+                <div class="card-body p-4 bg-white">
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} small py-2 shadow-sm border-0 mb-3" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger p-2 small border-0 mb-3">
+                            <ul class="mb-0 ps-3">
+                            {% for field, errors in form.errors.items() %}
+                                {% for error in errors %}
+                                    <li><strong>{{ field|capitalize }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="POST" action="{{ url_for('login_business') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-dark mb-1">Business Registered Email Address</label>
+                            {{ form.email(class="form-control text-dark border-secondary-subtle", placeholder="merchant@grocery.com", required=True) }}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-dark mb-1">Management Access Password</label>
+                            {{ form.password(class="form-control text-dark border-secondary-subtle", placeholder="••••••••", required=True) }}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-dark text-warning w-100 fw-bold py-2 shadow-sm">
+                            Verify & Enter Dashboard
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    <div class="text-center">
+                        <p class="mb-0 text-muted small">
+                            Want to add your grocery store to our network? 
+                            <a href="{{ url_for('register_business') }}" class="text-dark fw-bold text-decoration-none border-bottom border-dark">Create Vendor Profile Entry</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

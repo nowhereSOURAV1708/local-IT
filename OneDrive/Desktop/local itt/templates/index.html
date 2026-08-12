@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5">
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm border-0 mb-4 mx-auto" style="max-width: 800px;" role="alert">
+                    <i class="bi bi-info-circle-fill me-2"></i> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if not current_user.is_authenticated %}
+    <div class="p-5 mb-5 rounded-3 text-center position-relative overflow-hidden shadow" style="background: linear-gradient(135deg, #198754 0%, #0c4228 100%);">
+        <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25 bg-grid-pattern"></div>
+        <div class="position-relative z-1 py-4 text-white">
+            <h1 class="display-4 fw-black text-warning tracking-tight mb-2">FreshCart Express ERP</h1>
+            <p class="fs-5 mx-auto mb-5 opacity-90" style="max-width: 650px;">
+                Connecting neighborhood retail outlets with hyper-local consumers through instant digital sync nodes.
+            </p>
+            
+            <div class="row justify-content-center g-4 mx-auto mb-3" style="max-width: 650px;">
+                <div class="col-sm-6">
+                    <div class="card bg-white border-0 shadow h-100 transition-all hover-scale text-start">
+                        <div class="card-body p-4 d-flex flex-column justify-content-between text-dark">
+                            <div>
+                                <h4 class="fw-bold text-success mb-2"><i class="bi bi-bag-heart-fill"></i> Shopper Portal</h4>
+                                <p class="text-secondary small mb-4">Order groceries, track live neighborhood inventory maps, and manage your custom choices list.</p>
+                            </div>
+                            <a href="{{ url_for('login_customer') }}" class="btn btn-success w-100 fw-bold py-2 mt-auto">Login / Register as Customer</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card bg-white border-0 shadow h-100 transition-all hover-scale text-start">
+                        <div class="card-body p-4 d-flex flex-column justify-content-between text-dark">
+                            <div>
+                                <h4 class="fw-bold text-dark mb-2"><i class="bi bi-shop-window"></i> Enterprise Hub</h4>
+                                <p class="text-secondary small mb-4">Manage retail stock levels, analytics, billing summaries, and incoming order statuses.</p>
+                            </div>
+                            <a href="{{ url_for('login_business') }}" class="btn btn-dark w-100 fw-bold py-2 mt-auto text-warning">Login / Register your Store</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="p-4 bg-dark text-white rounded shadow d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h4 class="fw-bold mb-1 text-warning">
+                        <i class="bi bi-geo-alt-fill text-danger animate-pulse"></i> 
+                        Active Zone Node: <span class="text-white font-monospace">{% if browsing_pincode %}{{ browsing_pincode }}{% else %}Global Overview{% endif %}</span>
+                    </h4>
+                    <p class="text-light small mb-0 opacity-75">
+                        <strong class="text-warning">Shipping Route:</strong> {{ current_user.address }}
+                    </p>
+                </div>
+                {% if current_user.role == 'customer' %}
+                <button class="btn btn-warning btn-sm px-4 fw-medium shadow" type="button" data-bs-toggle="collapse" data-bs-target="#addressModifierCollapse">
+                    Change Delivery Hub
+                </button>
+                {% endif %}
+            </div>
+            
+            {% if current_user.role == 'customer' %}
+            <div class="collapse mt-3" id="addressModifierCollapse">
+                <div class="card card-body border-0 shadow-sm bg-light text-dark">
+                    <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-pencil-square"></i> Modify Operational Area Pincode Data</h6>
+                    <form action="{{ url_for('modify_address') }}" method="POST" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold">6-Digit Pincode</label>
+                            <input type="text" name="pincode" class="form-control font-monospace" placeholder="e.g. 713206" pattern="^[0-9]{6}$" value="{{ browsing_pincode or '' }}" required>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label small text-muted fw-bold">Street Address Landmark</label>
+                            <input type="text" name="address" class="form-control" value="{{ current_user.address or '' }}" required>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success w-100 shadow-sm fw-medium">Sync Area</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center">
+            <h3 class="fw-bold text-dark m-0">Verified Stores In Your Area</h3>
+            <span class="badge bg-success ms-3 font-monospace">{{ local_stores|length }} Stores Active</span>
+        </div>
+    </div>
+    
+    <div class="row text-dark">
+        {% if local_stores %}
+            {% for store in local_stores %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm border-0 border-top border-success border-3 rounded-3 transition-all hover-shadow">
+                    <div class="card-body d-flex flex-column justify-content-between p-4 bg-white text-dark">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-light text-success font-monospace border border-success-subtle px-2 py-1 small">
+                                    <i class="bi bi-pin-map-fill"></i> Pincode: {{ store.pincode }}
+                                </span>
+                            </div>
+                            <h4 class="card-title fw-bold text-dark mb-1">{{ store.store_name if store.store_name else 'Kirana Store Outpost' }}</h4>
+                            <p class="text-muted small mb-3"><i class="bi bi-person-badge text-secondary"></i> Vendor Associate: {{ store.name }}</p>
+                            
+                            <hr class="my-2 opacity-25">
+                            
+                            <p class="card-text text-secondary small mb-0">
+                                <i class="bi bi-building text-muted me-1"></i> {{ store.address }}
+                            </p>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <a href="{{ url_for('view_store_catalog', store_id=store.id) }}" class="btn btn-outline-success w-100 py-2 fw-bold shadow-sm rounded-2 d-flex align-items-center justify-content-center gap-2">
+                                Enter Marketplace <i class="bi bi-arrow-right-short fs-5"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5 bg-white rounded shadow-sm">
+                <div class="display-1 text-muted mb-3"><i class="bi bi-shop-window"></i></div>
+                <h4 class="text-dark fw-bold">No Localized Storefront Operators Found</h4>
+                <p class="text-secondary mx-auto small mb-0" style="max-width: 500px;">
+                    We couldn't track any retail storefront nodes mapping into your pincode zone.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .fw-black { font-weight: 900; }
+    .hover-shadow { transition: transform 0.22s ease, box-shadow 0.22s ease; }
+    .hover-shadow:hover { transform: translateY(-4px); box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.08) !important; }
+    .hover-scale { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .hover-scale:hover { transform: scale(1.02); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important; }
+    .animate-pulse { animation: pulse-animation 2s infinite; }
+    @keyframes pulse-animation { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    .bg-grid-pattern {
+        background-size: 20px 20px;
+        background-image: linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+                          linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
+    }
+</style>
+{% endblock %}

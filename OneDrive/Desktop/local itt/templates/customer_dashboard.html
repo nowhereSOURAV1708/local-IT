@@ -1,0 +1,173 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <div class="bg-white p-4 rounded-3 shadow-sm mb-4 border-start border-success border-5 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Welcome Back, {{ current_user.name }}!</h2>
+            <p class="text-muted mb-0 font-monospace">Logged in account: {{ current_user.email }}</p>
+        </div>
+        <span class="badge bg-success p-2 font-monospace shadow-sm">Customer Profile Active</span>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 bg-white">
+                <h4 class="fw-bold text-dark mb-3"><i class="fa-solid fa-list-check text-success me-2"></i> Your Store Pickup Bookings</h4>
+                <hr class="mt-0">
+                {% if orders %}
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover datatable-engine text-dark">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order Code Number</th>
+                                <th>Scheduled Collection Time Window</th>
+                                <th class="text-end">Billing Bill Amount</th>
+                                <th class="text-center">Current Preparation Stage</th>
+                                <th class="text-center text-success"><i class="fa-solid fa-file-invoice"></i> Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td class="fw-bold font-monospace text-dark">#FC-00{{ order.id }}</td>
+                                <td>
+                                    <div class="small fw-bold text-dark">{{ order.pickup_date }}</div>
+                                    <div class="small text-muted">{{ order.pickup_time_slot }}</div>
+                                </td>
+                                <td class="text-end font-monospace fw-bold text-success"> ₹{{ "%.2f"|format(order.total_amount) }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex flex-column align-items-center gap-2">
+                                        {% if order.status == 'Pending' %}
+                                            <span class="badge bg-secondary p-2 text-white shadow-sm"><i class="fa-solid fa-spinner fa-spin"></i> Request Received</span>
+                                        {% elif order.status == 'Confirmed' %}
+                                            <span class="badge bg-primary p-2 text-white shadow-sm"><i class="fa-solid fa-check-double"></i> Order Accepted</span>
+                                        {% elif order.status == 'Preparing' %}
+                                            <span class="badge bg-warning p-2 text-dark shadow-sm"><i class="fa-solid fa-boxes-packing"></i> Packing Your Items</span>
+                                        {% elif order.status == 'Ready for Pickup' %}
+                                            <span class="badge bg-success p-2 text-white shadow"><i class="fa-solid fa-truck-fast"></i> Ready for Collection!</span>
+                                        {% elif order.status == 'Completed' %}
+                                            <span class="badge bg-dark p-2 text-white opacity-75 shadow-sm"><i class="fa-solid fa-circle-check"></i> Closed & Paid</span>
+                                        {% elif order.status == 'Cancelled' %}
+                                            <span class="badge bg-danger p-2 text-white shadow-sm"><i class="fa-solid fa-ban"></i> Voided & Cancelled</span>
+                                        {% endif %}
+
+                                        {% if order.status == 'Pending' %}
+                                        <form action="{{ url_for('cancel_order_customer', order_id=order.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this store pickup reservation?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2 mt-1 fw-bold font-monospace" style="font-size: 0.75rem; border-radius: 4px;">
+                                                <i class="fa-solid fa-xmark"></i> Cancel Order
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-success font-monospace fw-bold px-3 py-1 shadow-sm" 
+                                            data-bs-toggle="modal" data-bs-target="#billModal-{{ order.id }}">
+                                        <i class="fa-solid fa-file-invoice-dollar"></i> View Bill
+                                    </button>
+
+                                    <div class="modal fade text-start" id="billModal-{{ order.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered text-dark">
+                                            <div class="modal-content border-0 shadow-lg">
+                                                <div class="modal-header bg-dark text-white">
+                                                    <h5 class="modal-title fw-bold font-monospace"><i class="fa-solid fa-receipt text-success me-2"></i> Cash Memo Statement #FC-00{{ order.id }}</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body p-4 bg-light text-dark">
+                                                    <div class="d-flex justify-content-between mb-3 font-monospace small border-bottom pb-2 text-muted">
+                                                        <span><strong>Date:</strong> {{ order.order_date.strftime('%Y-%m-%d') }}</span>
+                                                        <span><strong>Pickup Window:</strong> {{ order.pickup_date }}</span>
+                                                    </div>
+                                                    
+                                                    <h6 class="fw-bold mb-2 text-secondary small text-uppercase font-monospace">Itemized Breakdown:</h6>
+                                                    <div class="table-responsive bg-white rounded border mb-3">
+                                                        <table class="table table-sm table-borderless align-middle m-0 p-2">
+                                                            <thead class="table-light border-bottom">
+                                                                <tr class="small text-muted font-monospace">
+                                                                    <th class="ps-2">Description</th>
+                                                                    <th class="text-center">Qty</th>
+                                                                    <th class="text-end pe-2">Extended Rate</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {% for item in order.items %}
+                                                                <tr class="border-bottom border-light">
+                                                                    <td class="ps-2 py-2">
+                                                                        <div class="fw-bold text-dark small">{{ item.product.name if item.product else 'Deleted Asset' }}</div>
+                                                                        <small class="text-muted extra-small" style="font-size: 0.75rem;">Rate: ₹{{ "%.2f"|format(item.unit_price) }}</small>
+                                                                    </td>
+                                                                    <td class="text-center font-monospace fw-bold text-muted">x{{ item.quantity }}</td>
+                                                                    <td class="text-end font-monospace fw-bold text-success pe-2">₹{{ "%.2f"|format(item.unit_price * item.quantity) }}</td>
+                                                                </tr>
+                                                                {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                    <hr class="my-3 border-secondary opacity-25">
+                                                    
+                                                    <div class="font-monospace px-1">
+                                                        <div class="d-flex justify-content-between small text-muted mb-1">
+                                                            <span>Subtotal Gross Amount:</span>
+                                                            <span>₹{{ "%.2f"|format(order.total_amount - order.tax_amount) }}</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between small text-muted mb-2">
+                                                            <span>Estimated GST Tax (5%):</span>
+                                                            <span>₹{{ "%.2f"|format(order.tax_amount) }}</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between align-items-center fw-bold fs-5 text-dark border-top pt-2">
+                                                            <span>Grand Total Lock:</span>
+                                                            <span class="text-success fs-4">₹{{ "%.2f"|format(order.total_amount) }}</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="alert alert-success py-2 px-3 mt-3 mb-0 small border-0 shadow-sm d-flex align-items-center gap-2">
+                                                        <i class="fa-solid fa-circle-info text-success"></i>
+                                                        <span class="text-success-emphasis">Modality: Pay Counter via Cash/UPI upon item checking collection.</span>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer bg-white border-0 p-2">
+                                                    <button type="button" class="btn btn-secondary btn-sm px-3 font-monospace fw-medium" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted py-4 text-center">You haven't placed any grocery pickup reservations yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm p-4 bg-white mb-4">
+                <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-bell text-warning me-2"></i> Live Status Notifications Updates</h5>
+                <hr class="mt-0">
+                <div class="overflow-auto" style="max-height: 400px;">
+                    {% if notifications %}
+                        {% for n in notifications %}
+                        <div class="p-3 mb-2 rounded-3 bg-light border text-dark shadow-sm">
+                            <h6 class="fw-bold text-dark mb-1 small d-flex justify-content-between align-items-center">
+                                <span>{{ n.title }}</span>
+                                {% if not n.is_read %}
+                                <i class="fa-solid fa-circle text-primary extra-small" style="font-size: 0.5rem; display: inline-block;"></i>
+                                {% endif %}
+                            </h6>
+                            <p class="mb-0 text-muted extra-small" style="font-size: 0.8rem;">{{ n.message }}</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center py-3 small">No updates yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

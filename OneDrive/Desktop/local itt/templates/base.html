@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Grocery Pickup & Store ERP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-basket-shopping me-2"></i> FreshCart Express ERP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% if not current_user.is_authenticated or current_user.role == 'customer' %}
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-medium" href="{{ url_for('index') }}">
+                            <i class="bi bi-shop me-1"></i> Browse Stores
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <div class="d-flex align-items-center">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.role == 'customer' %}
+                            <a href="{{ url_for('cart') }}" class="btn btn-light position-relative me-3 text-success fw-bold">
+                                <i class="fa-solid fa-cart-shopping"></i> Bucket Pipeline
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white">{{ cart_count }}</span>
+                            </a>
+                            <a href="{{ url_for('customer_dashboard') }}" class="btn btn-outline-light me-2"><i class="fa-solid fa-user-gear"></i> Hello, {{ current_user.name.split()[0] }}</a>
+                        {% else %}
+                            <a href="{{ url_for('business_dashboard') }}" class="btn btn-outline-light me-2"><i class="fa-solid fa-chart-line"></i> Enterprise Dashboard</a>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('logout') }}" class="btn btn-danger"><i class="fa-solid fa-power-off"></i></a>
+                    {% else %}
+                        <a href="{{ url_for('login_customer') }}" class="btn btn-outline-light me-2 fw-bold">Shopper Portal Login</a>
+                        <a href="{{ url_for('login_business') }}" class="btn btn-dark fw-bold">Enterprise Hub login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm" role="alert">
+                        {{ msg }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <main class="py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <p class="mb-0">&copy; 2026 FreshCart Express Inc. Enterprise Software Engine. Local Pickup Reservation Protocols Active Framework Instance Node.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            if ($('.datatable-engine').length > 0) {
+                $('.datatable-engine').DataTable({ "responsive": true });
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

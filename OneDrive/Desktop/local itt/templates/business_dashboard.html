@@ -1,0 +1,457 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid px-4">
+    
+    <div class="bg-dark text-white p-4 rounded-3 shadow-sm mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-0 font-monospace text-warning"><i class="fa-solid fa-store"></i> Store Admin Dashboard</h1>
+            <p class="mb-0 text-muted small">Manage items, tracking details, prices, and customer orders in one place.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/business/analytics" class="btn btn-outline-info text-white border-white fw-bold">
+                <i class="fa-solid fa-chart-line me-2"></i> View Sales Reports
+            </a>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-warning fw-bold" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                <i class="fa-solid fa-folder-plus me-2"></i> Add New Category
+            </button>
+            <button class="btn btn-warning fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                <i class="fa-solid fa-plus-circle me-2"></i> Add New Item
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-5 text-dark">
+        <div class="col-md-3">
+            <div class="card bg-white border-0 shadow-sm p-3 h-100 border-start border-primary border-5">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted fw-bold small mb-1">Total Sales Earnings</h6>
+                        <h3 class="fw-bold text-dark font-monospace mb-0">₹{{ "%.2f"|format(revenue) }}</h3>
+                    </div>
+                    <i class="fa-solid fa-indian-rupee-sign text-primary fa-2x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-white border-0 shadow-sm p-3 h-100 border-start border-success border-5">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted fw-bold small mb-1">Orders Received</h6>
+                        <h3 class="fw-bold text-dark font-monospace mb-0">{{ orders_count }} Orders</h3>
+                    </div>
+                    <i class="fa-solid fa-receipt text-success fa-2x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-white border-0 shadow-sm p-3 h-100 border-start border-danger border-5">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted fw-bold small mb-1">Low Stock Items</h6>
+                        <h3 class="fw-bold text-danger font-monospace mb-0">{{ low_stock_count }} Alerts</h3>
+                    </div>
+                    <i class="fa-solid fa-triangle-exclamation text-danger fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-white border-0 shadow-sm p-3 h-100 border-start border-warning border-5">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted fw-bold small mb-1">Registered Customers</h6>
+                        <h3 class="fw-bold text-dark font-monospace mb-0">{{ cust_count }} Members</h3>
+                    </div>
+                    <i class="fa-solid fa-users text-warning fa-2x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div> <div class="card border-0 shadow-sm bg-white p-4 text-dark mb-4 mt-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold text-dark mb-1"><i class="fa-solid fa-comments text-success me-2"></i> Real-time Customer Desk Pipeline</h4>
+                <p class="text-muted small mb-0 font-monospace">Interact directly with nearby local consumer queries from your workspace node.</p>
+            </div>
+            <div>
+                <a href="{{ url_for('business_chats_inbox') }}" class="btn btn-primary btn-md fw-bold shadow-sm px-4 py-2">
+                    <i class="fa-solid fa-inbox me-1"></i> Open Customer Chat Desk Workspace
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm bg-white p-4 text-dark mb-4">
+        <h4 class="fw-bold text-dark mb-3"><i class="fa-solid fa-cash-register text-success me-2"></i> Inbound Customer Pickup Orders Queue</h4>
+        <hr class="mt-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle w-100">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer Details</th>
+                        <th>Booking Date</th>
+                        <th>Pickup Time Slot</th>
+                        <th class="text-end">Bill Total</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center text-warning">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td class="font-monospace fw-bold text-dark">#FC-00{{ order.id }}</td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ order.customer.name }}</div>
+                            <small class="text-muted font-monospace d-block mb-1">{{ order.customer.phone }}</small>
+                            
+                            <button class="btn btn-sm btn-link text-success p-0 fw-bold text-decoration-none small" type="button" 
+                                    data-bs-toggle="collapse" data-bs-target="#items-{{ order.id }}">
+                                <i class="fa-solid fa-basket-shopping"></i> View Items ({{ order.items|length }})
+                            </button>
+                            
+                            <div class="collapse mt-2" id="items-{{ order.id }}">
+                                <div class="p-2 bg-light rounded border border-secondary-subtle font-monospace" style="font-size: 0.85rem; max-width: 280px;">
+                                    {% for item in order.items %}
+                                        <div class="d-flex justify-content-between border-bottom border-1 py-1">
+                                            <span class="text-truncate text-dark" style="max-width: 180px;">
+                                                • {{ item.product.name if item.product else 'Deleted Product' }}
+                                            </span>
+                                            <strong class="text-success">x{{ item.quantity }}</strong>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="small">{{ order.order_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td class="fw-bold text-secondary">{{ order.pickup_date }} ({{ order.pickup_time_slot }})</td>
+                        <td class="text-end font-monospace fw-bold text-success">₹{{ "%.2f"|format(order.total_amount) }}</td>
+                        <td class="text-center">
+                            <span class="badge {% if order.status=='Pending' %}bg-secondary{% elif order.status=='Confirmed' %}bg-primary{% elif order.status=='Preparing' %}bg-warning text-dark{% elif order.status=='Ready for Pickup' %}bg-success{% else %}bg-dark{% endif %} px-2 py-1">{{ order.status }}</span>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group gap-1">
+                                <form action="{{ url_for('update_order_status', order_id=order.id, new_status='Confirmed') }}" method="POST"><button type="submit" class="btn btn-primary btn-sm fw-bold" {% if order.status != 'Pending' %}disabled{% endif %}>Accept</button></form>
+                                <form action="{{ url_for('update_order_status', order_id=order.id, new_status='Preparing') }}" method="POST"><button type="submit" class="btn btn-warning btn-sm text-dark fw-bold" {% if order.status != 'Confirmed' %}disabled{% endif %}>Pack</button></form>
+                                <form action="{{ url_for('update_order_status', order_id=order.id, new_status='Ready for Pickup') }}" method="POST"><button type="submit" class="btn btn-success btn-sm fw-bold" {% if order.status != 'Preparing' %}disabled{% endif %}>Ready</button></form>
+                                <form action="{{ url_for('update_order_status', order_id=order.id, new_status='Completed') }}" method="POST"><button type="submit" class="btn btn-dark btn-sm fw-bold" {% if order.status != 'Ready for Pickup' %}disabled{% endif %}>Paid & Close</button></form>
+                                <a href="/business/invoice/{{ order.id }}" class="btn btn-outline-dark btn-sm fw-bold" target="_blank"><i class="fa-solid fa-print"></i> Bill</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm bg-white p-4 text-dark mb-4">
+        <h4 class="fw-bold text-dark mb-3"><i class="fa-solid fa-boxes-stacked text-success me-2"></i> Live Stock Inventory Manager (Quick Row Update)</h4>
+        <hr class="mt-0">
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Product Item Name</th>
+                        <th>Category Rack</th>
+                        <th style="width: 180px;">Selling Price (₹)</th>
+                        <th style="width: 180px;">Available Store Stock</th>
+                        <th>Stock Alert Status</th>
+                        <th class="text-center">Actions Management</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr id="row-{{ product.id }}">
+                        <td>
+                            <div class="fw-bold text-dark">{{ product.name }}</div>
+                            <small class="text-muted">Item Code: {{ product.sku }}</small>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ product.category.name }}</span></td>
+                        <td>
+                            <input type="number" step="0.01" class="form-control form-control-sm font-monospace fw-bold price-input" value="{{ product.selling_price }}" data-id="{{ product.id }}">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm font-monospace fw-bold stock-input" value="{{ product.stock_quantity }}" data-id="{{ product.id }}">
+                        </td>
+                        <td>
+                            {% if product.stock_quantity <= 0 %}
+                                <span class="badge bg-danger p-2">Out of Stock</span>
+                            {% elif product.stock_quantity <= product.min_stock_level %}
+                                <span class="badge bg-warning text-dark p-2">Low Stock</span>
+                            {% else %}
+                                <span class="badge bg-success p-2">In Stock</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-sm btn-success save-inline-btn fw-bold" data-id="{{ product.id }}">
+                                    <i class="fa-solid fa-floppy-disk me-1"></i> Save Row
+                                </button>
+                                <form action="{{ url_for('delete_product', product_id=product.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to completely remove this item from shelves?');">
+                                    <button type="submit" class="btn btn-sm btn-danger fw-bold">
+                                        <i class="fa-solid fa-trash me-1"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered text-dark">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-folder-plus text-warning me-2"></i> Add New Product to Inventory</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_product_backend') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4 bg-light">
+                    <div class="mb-2">
+                        <label class="form-label fw-bold small mb-1">Item Title Name</label>
+                        <input type="text" name="name" class="form-control" required placeholder="e.g., Fresh Tomatoes">
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small mb-1">Item Code (SKU)</label>
+                            <input type="text" name="sku" class="form-control" required placeholder="e.g., VEG-TOM-05">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small mb-1">Barcode String (Optional)</label>
+                            <input type="text" name="barcode" class="form-control" placeholder="e.g., 890123456">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small mb-1">Brand Name</label>
+                            <input type="text" name="brand" class="form-control" placeholder="e.g., Local Farms">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small mb-1">Category Rack</label>
+                            <select name="category_id" class="form-select" required>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small mb-1">Cost Price (Wholesale ₹)</label>
+                            <input type="number" step="0.01" name="cost_price" class="form-control" required placeholder="40">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small mb-1">Selling Price (Store Counter ₹)</label>
+                            <input type="number" step="0.01" name="selling_price" class="form-control" required placeholder="60">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small mb-1">Initial Stock Quantity</label>
+                            <input type="number" name="stock_quantity" class="form-control" required placeholder="50">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small mb-1">Minimum Alert Limit Level</label>
+                            <input type="number" name="min_stock_level" class="form-control" required placeholder="10">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small mb-1">Product Photo</label>
+                        <input type="file" name="product_image" class="form-control">
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold small mb-1">Simple Description Details</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="Write simple specifications about weight, freshness packaging..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white border-top-0 p-3">
+                    <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold shadow-sm">Save Item to Shelf Records</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered text-dark">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-folder-plus text-warning me-2"></i> Create New Store Category</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_category_backend') }}" method="POST">
+                <div class="modal-body p-4 bg-light">
+                    <div class="mb-0">
+                        <label class="form-label fw-bold small mb-1">New Category Name</label>
+                        <input type="text" name="category_name" class="form-control" required placeholder="e.g., Organic Grains, Frozen Foods, Personal Care">
+                    </div>
+                </div>
+                <div class="modal-footer bg-white border-top-0 p-3">
+                    <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold shadow-sm">Save New Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Async Dynamic Row Grid Execution Interceptor Handler
+document.querySelectorAll('.save-inline-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const productId = this.getAttribute('data-id');
+        const row = document.getElementById(`row-${productId}`);
+        const priceValue = row.querySelector('.price-input').value;
+        const stockValue = row.querySelector('.stock-input').value;
+
+        fetch(`/business/product/update-inline/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                price: priceValue,
+                stock: stockValue
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Stock changes updated into store database successfully!');
+            window.location.reload();
+        });
+    });
+});
+</script>
+
+<button type="button" class="btn btn-dark shadow-lg d-flex align-items-center justify-content-center border border-success position-fixed" 
+        id="askAiTriggerBtn"
+        style="bottom: 25px; right: 25px; width: 60px; height: 60px; border-radius: 50% !important; z-index: 2000; animation: floatingPulse 2s infinite ease-in-out;">
+    <i class="fa-solid fa-robot text-success fs-4"></i>
+</button>
+
+<div class="card shadow-lg border-0 bg-white position-fixed d-none" 
+     id="askAiChatPanel"
+     style="bottom: 95px; right: 25px; width: 360px; max-height: 500px; border-radius: 12px; z-index: 2000; transition: all 0.3s ease;">
+    
+    <div class="card-header bg-dark text-white p-3 d-flex justify-content-between align-items-center border-0" style="border-radius: 12px 12px 0 0;">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-brain text-success fs-5"></i>
+            <div>
+                <h6 class="m-0 fw-bold text-white">Hub Assistant AI</h6>
+                <small class="text-muted font-monospace extra-small" style="font-size: 0.7rem;">Automated Business Guide Node</small>
+            </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white small" id="closeAiPanelBtn" aria-label="Close" style="font-size: 0.75rem;"></button>
+    </div>
+
+    <div class="card-body bg-light p-3 overflow-auto" id="aiChatBodyLog" style="height: 280px; display: flex; flex-direction: column; gap: 12px;">
+        <div class="d-flex justify-content-start">
+            <div class="p-2 bg-white text-dark border shadow-sm rounded-3 small" style="max-width: 85%; border-radius: 12px 12px 12px 0px !important;">
+                <p class="m-0 fw-medium">Hello Partner! 👋 Welcome to your ERP operations node. Choose a business tracking scenario or application query option below to pull instantaneous diagnostics.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-footer bg-white p-2 border-top">
+        <div class="small fw-bold text-secondary font-monospace mb-2 px-1 text-uppercase" style="font-size: 0.65rem;">Select Operations Query:</div>
+        <div class="d-flex flex-column gap-1" id="aiMcqButtonContainer" style="max-height: 110px; overflow-y: auto;">
+            <button class="btn btn-sm btn-outline-dark text-start font-monospace py-1 px-2 text-truncate" data-query="stock_update" style="font-size: 0.75rem;">
+                ❓ How do I update my inventory stock levels?
+            </button>
+            <button class="btn btn-sm btn-outline-dark text-start font-monospace py-1 px-2 text-truncate" data-query="pending_orders" style="font-size: 0.75rem;">
+                ❓ How do I check and accept customer pickup orders?
+            </button>
+            <button class="btn btn-sm btn-outline-dark text-start font-monospace py-1 px-2 text-truncate" data-query="gst_tax" style="font-size: 0.75rem;">
+                ❓ What is the system standard GST tax constraint rule?
+            </button>
+            <button class="btn btn-sm btn-outline-dark text-start font-monospace py-1 px-2 text-truncate" data-query="app_use" style="font-size: 0.75rem;">
+                ❓ How do I review customer direct chat histories?
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes floatingPulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.5); }
+        70% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(25, 135, 84, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+    }
+    #aiChatBodyLog::-webkit-scrollbar, #aiMcqButtonContainer::-webkit-scrollbar {
+        width: 4px;
+    }
+    #aiChatBodyLog::-webkit-scrollbar-thumb, #aiMcqButtonContainer::-webkit-scrollbar-thumb {
+        background-color: #ced4da;
+        border-radius: 4px;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const triggerBtn = document.getElementById('askAiTriggerBtn');
+    const chatPanel = document.getElementById('askAiChatPanel');
+    const closeBtn = document.getElementById('closeAiPanelBtn');
+    const chatBody = document.getElementById('aiChatBodyLog');
+    const mcqButtons = document.querySelectorAll('#aiMcqButtonContainer button');
+
+    // Preset Knowledge Engine Matrix Maps Response Lookups
+    const aiKnowledgeEngine = {
+        'stock_update': "🔧 **Stock Update Guide:** Go to your dashboard and look for 'Inventory Management Table'. Click the edit option on any item to alter quantities. If an item drops beneath your configured threshold value limits, a red indicator flag will automatically trigger an operations warning banner alert on your left pane panel grid console stack.",
+        'pending_orders': "📦 **Order Management Guide:** When customers submit pickup requests, they initialize as 'Pending Stage'. Review the main dashboard spreadsheet registry, check item specifications matching, then change the selection status toggle configuration to 'Confirmed' to signal packaging processes.",
+        'gst_tax': "⚖️ **Tax Modality Structure:** The system runtime calculates an automated tax framework parameter locked at an estimated GST value limit of exactly **5.00%** on item totals. This is automatically appended inside cash memos and checkout totals before generating customer bills.",
+        'app_use': "💬 **Communication Desk:** Click the 'Open Customer Chat Desk Workspace' link panel card button below your counter metrics rows to list all unique consumer indices who sent messages. Selecting any channel opens an instant dialogue sequence tracking panel."
+    };
+
+    // Toggle Chat Window Overlay Panel Toggle States
+    triggerBtn.addEventListener('click', () => {
+        chatPanel.classList.toggle('d-none');
+        chatBody.scrollTop = chatBody.scrollHeight;
+    });
+
+    closeBtn.addEventListener('click', () => {
+        chatPanel.classList.add('d-none');
+    });
+
+    // Handle MCQ Selection Parameter Actions Click Pipeline Stream Event Dispatcher
+    mcqButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const queryKey = this.getAttribute('data-query');
+            const questionText = this.innerText;
+            const responseText = aiKnowledgeEngine[queryKey] || "Processing dynamic system parameter checks...";
+
+            // Append User Question Bubble
+            const userBubble = document.createElement('div');
+            userBubble.className = "d-flex justify-content-end mb-2";
+            userBubble.innerHTML = `
+                <div class="p-2 text-white small shadow-sm" style="background: #212529; border-radius: 12px 12px 0px 12px !important; max-width: 85%;">
+                    <p class="m-0 font-monospace">${questionText}</p>
+                </div>
+            `;
+            chatBody.appendChild(userBubble);
+
+            // Append AI Diagnostic Response Bubble (With slight delay to mimic processing loop latency simulation)
+            setTimeout(() => {
+                const aiBubble = document.createElement('div');
+                aiBubble.className = "d-flex justify-content-start mb-2";
+                aiBubble.innerHTML = `
+                    <div class="p-2 bg-white text-dark border shadow-sm rounded-3 small" style="max-width: 85%; border-radius: 12px 12px 12px 0px !important;">
+                        <p class="m-0 fw-medium">${responseText}</p>
+                    </div>
+                `;
+                chatBody.appendChild(aiBubble);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }, 300);
+        });
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5 text-dark">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 rounded-3 mt-4 bg-white">
+                <div class="card-header bg-success text-white text-center py-3">
+                    <h4 class="mb-0 fw-bold"><i class="fa-solid fa-user-lock me-2"></i> Shopper Portal Gate Auth Instance</h4>
+                </div>
+                <div class="card-body p-4 bg-white">
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} small py-2 shadow-sm border-0 mb-3" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-dark mb-1">Corporate Register Validation Email Address Map</label>
+                            {{ form.email(class="form-control text-dark border-success", placeholder="name@domain.com") }}
+                            {% if form.email.errors %}
+                                {% for error in form.email.errors %}
+                                    <span class="text-danger small font-monospace d-block mt-1">{{ error }}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-dark mb-1">Secure Encrypted Verification Character Passstring Node</label>
+                            {{ form.password(class="form-control text-dark border-success", placeholder="••••••••") }}
+                            {% if form.password.errors %}
+                                {% for error in form.password.errors %}
+                                    <span class="text-danger small font-monospace d-block mt-1">{{ error }}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        {{ form.submit(class="btn btn-success w-100 fw-bold py-2 shadow-sm") }}
+                    </form>
+                    
+                    <hr class="my-4">
+                    <div class="text-center">
+                        <p class="mb-0 text-muted small">
+                            New user configuration pipeline profile setup requirement status trace path missing? 
+                            <a href="{{ url_for('register_customer') }}" class="text-success fw-bold text-decoration-none">Register a profile context entry here!</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

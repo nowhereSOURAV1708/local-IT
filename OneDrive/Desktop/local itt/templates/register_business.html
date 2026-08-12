@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5 text-dark">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg border-0 rounded-3 bg-white">
+                <div class="card-header bg-dark text-white text-center py-3">
+                    <h4 class="mb-0 fw-bold text-warning"><i class="fa-solid fa-store me-2"></i> Register New Retail Store Front</h4>
+                </div>
+                <div class="card-body p-4 bg-white">
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} small py-2 mb-4 border-0 shadow-sm" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('register_business') }}">
+                        
+                        <h6 class="text-secondary fw-bold mb-3 border-bottom pb-2"><i class="bi bi-person-badge"></i> 1. Vendor Account Details</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">Owner / Associate Full Name</label>
+                                <input type="text" name="name" class="form-control text-dark border-secondary-subtle" placeholder="e.g. Sourav Sandilya" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">Official Contact Number</label>
+                                <input type="text" name="phone" class="form-control text-dark border-secondary-subtle font-monospace" placeholder="e.g. 9876543210" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">Business Identity Email</label>
+                                <input type="email" name="email" class="form-control text-dark border-secondary-subtle" placeholder="merchant@grocery.com" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">Secure Password Node</label>
+                                <input type="password" name="password" class="form-control text-dark border-secondary-subtle" placeholder="••••••••" required>
+                            </div>
+                        </div>
+
+                        <h6 class="text-secondary fw-bold mb-3 border-bottom pb-2"><i class="bi bi-shop"></i> 2. Retail Store Hub Configuration</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-8">
+                                <label class="form-label small fw-bold text-dark mb-1">Commercial Store Trade Name</label>
+                                <input type="text" name="store_name" class="form-control text-dark border-secondary-subtle" placeholder="e.g. Gupta Supermart & Kirana Hub" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-dark mb-1">Operational Area Pincode</label>
+                                <input type="text" name="pincode" class="form-control text-dark border-secondary-subtle font-monospace" placeholder="e.g. 713206" pattern="^[0-9]{6}$" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-dark mb-1">Complete Warehouse Dispatch Address</label>
+                                <textarea name="address" class="form-control text-dark border-secondary-subtle" rows="3" placeholder="Shop No, Building Name, Street Route Market Zone Details" required></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark w-100 fw-bold py-2 shadow-sm text-warning mt-2">
+                            Initialize Store & Deploy Profile
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    <div class="text-center">
+                        <p class="mb-0 text-muted small">Already managing a registered merchant profile? <a href="{{ url_for('login_business') }}" class="text-dark fw-bold text-decoration-none border-bottom border-dark">Access Enterprise Hub Login</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

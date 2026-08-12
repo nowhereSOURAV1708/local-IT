@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5 text-dark bg-light p-4 rounded shadow-sm">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <div class="card shadow-sm border-0 rounded-3 mb-4 bg-white">
+                <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3 text-dark">
+                    <div>
+                        <span class="badge bg-success mb-2">Selected Grocery Item</span>
+                        <h2 class="fw-bold m-0 text-dark">{{ target_product.name }}</h2>
+                        <p class="text-muted small m-0 mt-1">Brand: {{ target_product.brand if target_product.brand else 'Generic' }} | SKU: <span class="font-monospace fw-bold text-success">{{ target_product.sku }}</span></p>
+                    </div>
+                    <div class="text-end">
+                        <p class="text-muted small mb-1 fw-bold">Current Store Price</p>
+                        <h3 class="fw-bold text-success m-0">₹{{ "%.2f"|format(target_product.selling_price) }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="fw-bold text-dark mb-3"><i class="fa-solid fa-code-compare text-success me-2"></i> Alternative Merchant Price Matrix</h4>
+            
+            <div class="card shadow border-0 rounded-3 bg-white overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 text-dark">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col" class="ps-4 py-3">Store / Merchant Hub</th>
+                                <th scope="col" class="py-3">Delivery Area</th>
+                                <th scope="col" class="py-3">Price Offered</th>
+                                <th scope="col" class="py-3">Price Difference</th>
+                                <th scope="col" class="text-end pe-4 py-3">Action Pipeline</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if comparison_deals %}
+                                {% for prod, merchant in comparison_deals %}
+                                <tr class="bg-white">
+                                    <td class="ps-4">
+                                        <h6 class="fw-bold mb-0 text-dark">{{ merchant.store_name if merchant.store_name else 'Kirana Outpost' }}</h6>
+                                        <small class="text-muted">Vendor: {{ merchant.name }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark font-monospace border">
+                                            <i class="fa-solid fa-location-dot text-danger me-1"></i> {{ merchant.pincode }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success fs-5">₹{{ "%.2f"|format(prod.selling_price) }}</span>
+                                    </td>
+                                    <td>
+                                        {% set diff = prod.selling_price - target_product.selling_price %}
+                                        {% if diff < 0 %}
+                                            <span class="text-success fw-bold small"><i class="fa-solid fa-arrow-down-long"></i> Saves ₹{{ diff|abs|round(2) }} cheaper!</span>
+                                        {% elif diff > 0 %}
+                                            <span class="text-danger fw-bold small"><i class="fa-solid fa-arrow-up-long"></i> +₹{{ diff|round(2) }} expensive</span>
+                                        {% else %}
+                                            <span class="text-secondary fw-bold small">Same Price match</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <a href="{{ url_for('view_store_catalog', store_id=merchant.id) }}" class="btn btn-sm btn-success fw-bold px-3 shadow-sm">
+                                            Visit Store <i class="fa-solid fa-chevron-right small ms-1"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr class="bg-white">
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="fa-solid fa-store-slash display-4 mb-3 d-block text-secondary"></i>
+                                        No other neighborhood merchants are carrying this specific item code registry template.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <a href="javascript:history.back()" class="btn btn-secondary fw-bold shadow-sm px-4"><i class="fa-solid fa-arrow-left me-2"></i> Back to Catalog</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Bill Receipt</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body { background-color: #f8f9fa; font-family: monospace; }
+        .invoice-card { background: #fff; max-width: 800px; margin: 30px auto; padding: 40px; border: 1px solid #dee2e6; }
+        @media print {
+            body { background: none; }
+            .invoice-card { border: none; margin: 0; padding: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container no-print text-center mt-4">
+    <button onclick="window.print()" class="btn btn-dark btn-lg fw-bold"><i class="fa-solid fa-print"></i> Print Bill / Save PDF</button>
+    <a href="/business/dashboard" class="btn btn-secondary btn-lg ms-2">Back to Dashboard</a>
+</div>
+
+<div class="invoice-card shadow-sm">
+    <div class="row mb-4">
+        <div class="col-6">
+            <h2 class="fw-bold text-success"><i class="fa-solid fa-basket-shopping"></i> FRESH CART EXPRESS</h2>
+            <p class="text-muted mb-0">Local Counter Pickup Facility Hub<br>Phone: +91 98765 43210</p>
+        </div>
+        <div class="col-6 text-end">
+            <h4 class="fw-bold text-dark">RETAIL CASH MEMO</h4>
+            <p class="mb-0"><strong>Invoice No:</strong> #INV-2026-00{{ order.id }}</p>
+            <p class="mb-0"><strong>Date:</strong> {{ order.order_date.strftime('%d-%m-%Y %H:%M') }}</p>
+        </div>
+    </div>
+    
+    <hr>
+
+    <div class="row my-4">
+        <div class="col-6">
+            <h6 class="text-muted text-uppercase fw-bold small">Customer Details:</h6>
+            <div class="fw-bold fs-5 text-dark">{{ order.customer.name }}</div>
+            <div class="text-secondary">Phone: {{ order.customer.phone }}</div>
+            <div class="text-secondary">Email: {{ order.customer.email }}</div>
+        </div>
+        <div class="col-6 text-end">
+            <h6 class="text-muted text-uppercase fw-bold small">Pickup Appointment:</h6>
+            <div class="fw-bold text-dark">{{ order.pickup_date }}</div>
+            <div class="text-muted font-monospace">{{ order.pickup_time_slot }}</div>
+            <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">Payment Status: Pay at Counter (Cash/UPI)</span>
+        </div>
+    </div>
+
+    <table class="table table-bordered mt-4 align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Item Description</th>
+                <th class="text-center" style="width: 100px;">Quantity</th>
+                <th class="text-end" style="width: 150px;">Rate (₹)</th>
+                <th class="text-end" style="width: 150px;">Total (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items %}
+            <tr>
+                <td>
+                    <div class="fw-bold text-dark">{{ item.product.name }}</div>
+                    <small class="text-muted">Code: {{ item.product.sku }}</small>
+                </td>
+                <td class="text-center font-monospace fw-bold">{{ item.quantity }}</td>
+                <td class="text-end font-monospace text-muted">₹{{ "%.2f"|format(item.unit_price) }}</td>
+                <td class="text-end font-monospace fw-bold text-success">₹{{ "%.2f"|format(item.unit_price * item.quantity) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="row justify-content-end mt-4">
+        <div class="col-md-6 text-end">
+            <div class="d-flex justify-content-between py-1 border-bottom">
+                <span class="text-muted">Items Subtotal:</span>
+                <span class="font-monospace text-dark">₹{{ "%.2f"|format(order.total_amount - order.tax_amount) }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-1 border-bottom">
+                <span class="text-muted">Estimated Tax (5% GST):</span>
+                <span class="font-monospace text-dark">₹{{ "%.2f"|format(order.tax_amount) }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-2 fs-5 fw-bold text-success">
+                <span>Grand Total Amount:</span>
+                <span class="font-monospace fs-4">₹{{ "%.2f"|format(order.total_amount) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <hr class="mt-5">
+    <div class="text-center text-muted small font-monospace">
+        Thank you for choosing Fresh Cart Express! Please hand over this slip to gather your packed items at the retail counter layout block.
+    </div>
+</div>
+
+</body>
+</html>
+"@
+
+Set-Content -Path ".\templates\invoice_print.html" -Value $invoiceContent -Encoding UTF8

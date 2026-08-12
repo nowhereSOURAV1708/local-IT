@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h3 class="fw-bold text-success mb-4"><i class="fa-solid fa-cart-shopping me-2"></i> Your Reservation Order Bucket Pipeline Ledger Rows</h3>
+    {% if items %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-3 bg-white mb-4">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product Details</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Extended Subtotal</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>
+                                    <h6 class="fw-bold mb-0 text-dark">{{ item.product.name }}</h6>
+                                    <small class="text-muted small">SKU System Token ID ID: {{ item.product.sku }}</small>
+                                </td>
+                                <td class="text-center font-monospace fw-bold">{{ item.quantity }}</td>
+            </div>
+                                <td class="text-end font-monospace text-muted"> ₹{{ "%.2f"|format(item.product.selling_price) }}</td>
+                                <td class="text-end font-monospace fw-bold text-success">{{ "%.2f"|format(item.product.selling_price * item.quantity) }}</td>
+                                <td class="text-center">
+                                    <form action="{{ url_for('remove_cart_item', item_id=item.id) }}" method="POST">
+                                        <button class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-trash-can"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm p-4 bg-white">
+                <h5 class="fw-bold text-dark mb-3">Order Invoice Computation Summary</h5>
+                <hr class="mt-0">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Subtotal Gross Value Matrix Base:</span>
+                    <span class="font-monospace fw-bold text-dark">₹{{ "%.2f"|format(subtotal) }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Estimated Tax Multiplier Node (8% Rate):</span>
+                    <span class="font-monospace fw-bold text-dark">₹{{ "%.2f"|format(tax) }}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="fw-bold text-dark fs-5">Total Valuation Matrix Lock:</span>
+                    <span class="font-monospace fw-extrabold text-success fs-4">₹{{ "%.2f"|format(total) }}</span>
+                </div>
+                <a href="{{ url_for('checkout') }}" class="btn btn-success btn-lg w-100 fw-bold shadow-sm py-2">Proceed To Checkout Setup Platform Gate</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fa-solid fa-basket-shopping text-muted fa-4x mb-3"></i>
+        <h4 class="text-muted fw-bold">Your reservation order bucket row configuration log database is empty.</h4>
+       <a href="{{ url_for('index') }}" class="btn btn-success mt-3 fw-bold">Browse Live Local Inventory Store Grid</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

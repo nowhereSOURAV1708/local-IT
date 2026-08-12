@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4 text-dark" style="min-height: 80vh; display: block !important;">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow border border-light p-4 bg-white rounded-3 d-block">
+                
+                <h4 class="fw-bold text-dark mb-3">
+                    <i class="fa-solid fa-inbox text-success me-2"></i> Merchant Active Chat Channels
+                </h4>
+                <hr class="mt-0">
+                
+                <div class="list-group shadow-sm d-block">
+                    {% if active_chats and active_chats|length > 0 %}
+                        {% for cust in active_chats %}
+                            <a href="{{ url_for('chat_window', chat_user_id=cust.id) }}" 
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3 bg-white border-bottom text-dark">
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">
+                                        <i class="fa-solid fa-user text-muted me-2"></i> {{ cust.name }}
+                                    </h6>
+                                    <small class="text-muted font-monospace">
+                                        Customer ID Ref: #CUST-00{{ cust.id }} {% if cust.phone %}| Mobile: {{ cust.phone }}{% endif %}
+                                    </small>
+                                </div>
+                                <span class="btn btn-sm btn-success fw-bold">Open Chat Session <i class="fa-solid fa-chevron-right small ms-1"></i></span>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5 bg-white text-muted border rounded-3">
+                            <i class="fa-solid fa-folder-open display-4 mb-3 d-block text-secondary opacity-50"></i>
+                            <h5 class="fw-bold text-secondary">No Active Customer Chat Channels</h5>
+                            <p class="small text-muted font-monospace">When a customer initiates a message query from your store catalog, it will index here.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mt-4">
+                    <a href="{{ url_for('business_dashboard') }}" class="btn btn-secondary font-monospace fw-bold">
+                        <i class="fa-solid fa-arrow-left"></i> Hub Dashboard
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

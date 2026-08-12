@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4 text-dark">
+    
+    <div class="p-4 p-md-5 mb-4 bg-dark text-white rounded-3 shadow-sm d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <span class="badge bg-success mb-2 font-monospace">Open & Verified Outlet Node</span>
+            <h1 class="display-5 fw-bold text-warning mb-1">
+                {{ store.store_name if store.store_name else 'Local Kirana Warehouse' }}
+            </h1>
+            <p class="text-light opacity-75 mb-0">
+                <i class="fa-solid fa-id-badge"></i> Vendor Manager: {{ store.name }} | 
+                <i class="fa-solid fa-location-dot"></i> Area Pincode: {{ store.pincode }}
+            </p>
+            <small class="text-muted d-block mt-2 font-monospace">
+                <i class="fa-solid fa-building"></i> Dispatch Base: {{ store.address }}
+            </small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ url_for('chat_window', chat_user_id=store.id) }}" class="btn btn-warning text-dark px-4 fw-bold font-monospace shadow-sm">
+                <i class="fa-solid fa-comments"></i> Chat with Vendor
+            </a>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-light px-4 fw-medium font-monospace">
+                <i class="fa-solid fa-arrow-left"></i> Change Store
+            </a>
+        </div>
+    </div>
+
+    <div class="row text-dark">
+        <div class="col-lg-3 mb-4">
+            <div class="card p-3 shadow-sm border-0 bg-white rounded-3">
+                <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-sliders me-2"></i>Categories</h5>
+                <hr class="mt-0">
+                <div class="list-group list-group-flush font-monospace">
+                    <a href="{{ url_for('view_store_catalog', store_id=store.id) }}" 
+                       class="list-group-item list-group-item-action border-0 rounded-2 mb-1 {% if not selected_category %} active bg-success text-white fw-bold {% endif %}">
+                        Show All Items
+                    </a>
+                    {% for cat in categories %}
+                    <a href="{{ url_for('view_store_catalog', store_id=store.id, category_id=cat.id) }}" 
+                       class="list-group-item list-group-item-action border-0 rounded-2 mb-1 {% if selected_category == cat.id %} active bg-success text-white fw-bold {% endif %}">
+                        {{ cat.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <form action="{{ url_for('view_store_catalog', store_id=store.id) }}" method="GET" class="input-group shadow-sm">
+                        {% if selected_category %}
+                            <input type="hidden" name="category_id" value="{{ selected_category }}">
+                        {% endif %}
+                        <input type="text" name="search" class="form-control border-success py-2 font-monospace text-dark" 
+                               placeholder="Search groceries in local terms (e.g. Aloo, Doodh, Milk, Bread, Chocolate...)"
+                               value="{{ request.args.get('search', '') }}">
+                        <button class="btn btn-success px-4 fw-bold" type="submit">Search Outlet</button>
+                    </form>
+                    
+                    {% if request.args.get('search', '') %}
+                    <div class="mt-2 small text-muted font-monospace d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-lightning-charge text-warning"></i>
+                        <span>Smart Query Matrix mapping results for:</span>
+                        <strong class="text-success">"{{ request.args.get('search', '') }}"</strong>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row g-4">
+                {% if products %}
+                    {% for product in products %}
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card h-100 shadow-sm border-0 rounded-3 border-bottom-hover bg-white text-dark position-relative">
+                            
+                            {% if product.category_id == 7 %}
+                            <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-3 shadow-sm font-monospace">🔞 18+ Restricted</span>
+                            {% endif %}
+
+                            <div class="text-center bg-light position-relative overflow-hidden border-bottom" style="height: 170px; border-radius: 8px 8px 0 0;">
+                                {% if product.image_url and product.image_url != 'default_product.jpg' %}
+                                    <img src="{{ url_for('static', filename='uploads/' + product.image_url) }}" 
+                                         class="w-100 h-100 object-fit-cover transition-all image-zoom-effect" 
+                                         alt="{{ product.name }}">
+                                {% else %}
+                                    <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center" 
+                                         style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
+                                        <i class="fa-solid fa-basket-shopping fa-3x mb-1 text-white opacity-75"></i>
+                                        <span class="font-monospace text-white extra-small opacity-75" style="font-size: 0.7rem;">READY TO DISPATCH</span>
+                                    </div>
+                                {% endif %}
+                                {% if product.category_id == 5 %}
+                                    <div class="w-100 h-100 position-absolute top-0 start-0 bg-dark opacity-25 blur-layer z-1"></div>
+                                {% endif %}
+                            </div>
+
+                            <div class="card-body p-3 d-flex flex-column justify-content-between bg-white text-dark">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-1">
+                                        <span class="badge bg-light text-success border border-success-subtle px-2 font-monospace" style="font-size: 0.7rem;">
+                                            {{ product.category.name }}
+                                        </span>
+                                        <span class="small text-muted fw-bold font-monospace" style="font-size: 0.75rem;">
+                                            {{ product.brand if product.brand else 'Generic' }}
+                                        </span>
+                                    </div>
+                                    <h5 class="fw-bold text-dark text-truncate mb-1" style="font-size: 1.05rem;" title="{{ product.name }}">
+                                        {{ product.name }}
+                                    </h5>
+                                    <p class="small text-muted text-truncate mb-0" style="font-size: 0.85rem;">
+                                        {{ product.description if product.description else 'Fresh inventory allocation item.' }}
+                                    </p>
+                                    <span class="text-muted extra-small d-block mt-1 font-monospace" style="font-size: 0.7rem;">
+                                        SKU: {{ product.sku }}
+                                    </span>
+                                </div>
+
+                                <div class="mt-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fs-4 fw-bold text-success font-monospace">₹{{ "%.2f"|format(product.selling_price) }}</span>
+                                        
+                                        {% if product.stock_quantity <= 0 %}
+                                            <span class="badge bg-danger text-white">Sold Out</span>
+                                        {% elif product.stock_quantity <= product.min_stock_level %}
+                                            <span class="badge bg-warning text-dark font-monospace" style="font-size: 0.75rem;">Only {{ product.stock_quantity }} Left</span>
+                                        {% else %}
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace" style="font-size: 0.75rem;">In Stock</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <a href="{{ url_for('compare_prices', product_id=product.id) }}" 
+                                           class="btn btn-sm btn-outline-secondary w-100 fw-bold py-1 shadow-sm d-flex align-items-center justify-content-center gap-1" 
+                                           style="font-size: 0.8rem;">
+                                            <i class="fa-solid fa-code-compare"></i> Compare Market Prices
+                                        </a>
+                                    </div>
+
+                                    <div class="d-flex gap-2">
+                                        <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" 
+                                              class="w-100 {% if product.category_id == 7 %}restricted-cart-form{% endif %}">
+                                            <button type="submit" class="btn btn-success w-100 fw-bold btn-sm shadow-sm py-2" 
+                                                    {% if product.stock_quantity <= 0 %} disabled {% endif %}>
+                                                <i class="fa-solid fa-cart-plus me-1"></i> Add to Cart
+                                            </button>
+                                        </form>
+                                        <form action="{{ url_for('toggle_favorite', product_id=product.id) }}" method="POST">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm py-2" title="Bookmark Item">
+                                                <i class="fa-solid fa-heart"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-5 bg-white rounded-3 shadow-sm border">
+                        <i class="fa-solid fa-store-slash text-muted fa-3x mb-3 opacity-50"></i>
+                        <h5 class="text-muted fw-bold mb-1">No Active Grocery Logs Found</h5>
+                        <p class="text-muted small font-monospace mb-0">No shelf slots matched your search term parameter configurations queries.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="regulatoryAgeGateModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered text-dark">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-body p-5 text-center bg-white" style="border-radius: 16px;">
+                <div class="mb-4">
+                    <span class="badge bg-danger rounded-circle p-3 shadow-sm font-monospace fw-bold fs-3 d-inline-flex align-items-center justify-content-center" 
+                          style="width: 70px; height: 70px; border: 4px solid #f8d7da;">
+                        18+
+                    </span>
+                </div>
+                <h4 class="fw-bold text-dark mb-2">Age Verification Required</h4>
+                <p class="text-muted small px-2 mb-4">
+                    This item is restricted. Under statutory legal frameworks, you must confirm your age parameters before adding tobacco products to your cart.
+                </p>
+                <div class="form-check form-switch bg-light p-3 rounded-3 d-flex align-items-center justify-content-between mb-4 border">
+                    <label class="form-check-label fw-bold text-dark ms-2 font-monospace" for="legalAgeToggleCheckbox">
+                        <i class="fa-solid fa-id-card text-secondary me-1"></i> I am 18 years or older
+                    </label>
+                    <input class="form-check-input border-secondary" type="checkbox" id="legalAgeToggleCheckbox" style="width: 45px; height: 24px; cursor: pointer;">
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-danger py-2 fw-bold shadow-sm" id="confirmAgeGateBtn" disabled>
+                        Confirm & Add to Cart <i class="fa-solid fa-cart-plus ms-1"></i>
+                    </button>
+                    <button type="button" class="btn btn-link text-muted small mt-1 text-decoration-none font-monospace" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-bottom-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .border-bottom-hover:hover { transform: translateY(-4px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.12) !important; }
+    .image-zoom-effect { transition: transform 0.3s ease; object-fit: cover; }
+    .border-bottom-hover:hover .image-zoom-effect { transform: scale(1.04); }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let activeRestrictedForm = null; 
+    const ageGateModal = new bootstrap.Modal(document.getElementById('regulatoryAgeGateModal'));
+    const ageCheckbox = document.getElementById('legalAgeToggleCheckbox');
+    const confirmBtn = document.getElementById('confirmAgeGateBtn');
+    
+    // 1. Intercept only target forms having 'restricted-cart-form' class (Category 5/Tobacco items)
+    document.querySelectorAll('.restricted-cart-form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            // 🔥 CRITICAL CHANGE: We removed the sessionStorage check entirely!
+            event.preventDefault(); // Dynamic submission link ko block karo instant
+            
+            activeRestrictedForm = this; // Current clicked form references save karo
+            ageCheckbox.checked = false; // Reset the switch toggle back to off state
+            confirmBtn.disabled = true;  // Keep the submission execution route locked
+            confirmBtn.classList.remove('btn-success');
+            confirmBtn.classList.add('btn-danger');
+            
+            ageGateModal.show(); // Always show the verification overlay popup frame
+        });
+    });
+
+    // 2. Handle switch toggle action state updates
+    ageCheckbox.addEventListener('change', function() {
+        confirmBtn.disabled = !this.checked;
+        if (this.checked) {
+            confirmBtn.classList.remove('btn-danger');
+            confirmBtn.classList.add('btn-success');
+        } else {
+            confirmBtn.classList.remove('btn-success');
+            confirmBtn.classList.add('btn-danger');
+        }
+    });
+
+    // 3. Final submission channel route dispatcher
+    confirmBtn.addEventListener('click', function() {
+        if (ageCheckbox.checked && activeRestrictedForm) {
+            ageGateModal.hide(); // Hide the validation grid
+            activeRestrictedForm.submit(); // Force execute original add-to-cart submit pipeline request
+        }
+    });
+});
+</script>
+{% endblock %}

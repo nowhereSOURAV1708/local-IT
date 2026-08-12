@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5 text-dark">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow border-0 rounded-3 bg-white">
+                <div class="card-header bg-success text-white text-center py-3">
+                    <h4 class="mb-0 fw-bold"><i class="fa-solid fa-user-plus me-2"></i> Register New Customer Account Profile</h4>
+                </div>
+                <div class="card-body p-4 bg-white">
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger p-3 mb-4 border-0 rounded shadow-sm">
+                            <h6 class="fw-bold mb-2"><i class="fa-solid fa-triangle-exclamation"></i> Action Blocked: Validation Failed</h6>
+                            <ul class="mb-0 small ps-3">
+                            {% for field, errors in form.errors.items() %}
+                                {% for error in errors %}
+                                    <li><strong>{{ field|capitalize }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-dark mb-1">Full Name</label>
+                            {{ form.name(class="form-control text-dark border-secondary-subtle", placeholder="Sourav Sandilya") }}
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-dark mb-1">Email</label>
+                                {{ form.email(class="form-control text-dark border-secondary-subtle", placeholder="souravsandilya89882@gmail.com") }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-dark mb-1">Phone Number</label>
+                                {{ form.phone(class="form-control text-dark border-secondary-subtle", placeholder="8002358953") }}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-dark mb-1">Password</label>
+                                {{ form.password(class="form-control text-dark border-secondary-subtle", placeholder="••••••••") }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-dark mb-1">Confirm Password</label>
+                                {{ form.confirm_password(class="form-control text-dark border-secondary-subtle", placeholder="••••••••") }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-dark mb-1">6-Digit Area Pincode Indicator</label>
+                            {{ form.pincode(class="form-control text-dark border-secondary-subtle font-monospace", placeholder="e.g., 713206") }}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-dark mb-1">Address Details</label>
+                            {{ form.address(class="form-control text-dark border-secondary-subtle", rows="3", placeholder="Govind Khaware Lane, Shivganga Muhalla, Baidyanath Dham") }}
+                        </div>
+
+                        {{ form.submit(class="btn btn-success w-100 fw-bold py-2 shadow-sm") }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
