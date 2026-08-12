@@ -5,7 +5,7 @@ class Config:
     
     # --- NEON LIVE CLOUD DATABASE ---
     # Replace the string below with the exact URL you just copied from your Neon dashboard
-    NEON_URL = 'postgresql://neondb_owner:npg_9VfwTxgYUe0h@ep-snowy-boat-aoxrg945.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require'
+    NEON_URL = 'xxxxxxx'
     
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or NEON_URL
     SQLALCHEMY_TRACK_MODIFICATIONS = False
